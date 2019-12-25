@@ -1,3 +1,3 @@
+import AdobeXmp from './AdobeXmp'
 
-
-// export default 
+export default { AdobeXmp }
