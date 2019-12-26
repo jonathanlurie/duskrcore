@@ -16,7 +16,7 @@
 
   console.log(duskrcore)
 
-  let xmp = new duskrcore.Xmp()
+  // let xmp = new duskrcore.Xmp()
 
   // a promise based version of reading file as text
   function readFile(file){
@@ -55,9 +55,22 @@
     })
 
     let xmpRawData = await Promise.all(xmpRawDataPromises)
+    xmpRawData = xmpRawData.filter(xmpData => xmpData !== null)
+
 
     // do something with that
-    console.log(xmpRawData)
+    if(xmpRawData.length){
+      process(xmpRawData)
+    }else{
+      console.warn('No valid xmp here.')
+    }
+
+  }
+
+  function process(xmpRawData){
+    let xmpObj = new duskrcore.AdobeXmp()
+    xmpObj.setXmlPayload(xmpRawData[0].xmpString)
+    console.log(xmpObj)
   }
 
   document.getElementById('files').addEventListener('change', handleFileSelect, false)
