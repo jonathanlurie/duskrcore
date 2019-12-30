@@ -1,5 +1,11 @@
 import XmlParser from 'xml-js'
 
+// list of basic attributes to not interpolate
+const UNSETTINGS = [
+  'Version',
+  'ProcessVersion'
+]
+
 class AdobeXmp {
 
   /**
@@ -83,6 +89,21 @@ class AdobeXmp {
   }
 
 
+  getListOfSettingAttributes(){
+    let ba = this._getBasicAttributesObject()
+    let allNames = Object.keys(ba)
+      .filter(attrName => attrName.startsWith('crs:'))
+      .filter(attrName => {
+        let attrValue = ba[attrName]
+        return !isNaN(parseFloat(attrValue))
+      })
+      .map(attrName => attrName.split(':')[1])
+      .filter(attrName => !UNSETTINGS.includes(attrName))
+
+    return allNames
+  }
+
+
   getSettingAttribute(attrName){
     let ba = this._getBasicAttributesObject()
     if(`crs:${attrName}` in ba){
@@ -96,6 +117,13 @@ class AdobeXmp {
   setSettingAttribute(attrName, value){
     let ba = this._getBasicAttributesObject()
     ba[`crs:${attrName}`] = AdobeXmp.convertToString(value)
+  }
+
+
+  clone(){
+    let clone = new AdobeXmp()
+    clone.setXmlPayload(this._xmlPayload)
+    return clone
   }
 
 }

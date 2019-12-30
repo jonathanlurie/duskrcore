@@ -14,8 +14,6 @@
 
   <script>
 
-  console.log(duskrcore)
-
   // let xmp = new duskrcore.Xmp()
 
   // a promise based version of reading file as text
@@ -42,14 +40,14 @@
 
     let xmpRawDataPromises = files.map(async f => {
       try {
-        let fileName = f.name
+        let filename = f.name
         let xmpStr = await readFile(f)
         return {
-          name: fileName,
+          filename: filename,
           xmpString: xmpStr
         }
       }catch(e){
-        console.warn(`The file ${f.name} is not text based.`)
+        console.warn(`The file ${f.filename} is not text based.`)
       }
       return null
     })
@@ -68,9 +66,26 @@
   }
 
   function process(xmpRawData){
-    let xmpObj = new duskrcore.AdobeXmp()
-    xmpObj.setXmlPayload(xmpRawData[0].xmpString)
-    console.log(xmpObj)
+    // let xmpObj = new duskrcore.AdobeXmp()
+    // xmpObj.setXmlPayload(xmpRawData[0].xmpString)
+    // console.log(xmpObj)
+
+    let interpolator = new duskrcore.AdobeXmpInterpolator()
+    console.log(interpolator)
+
+    xmpRawData.forEach(xmp => {
+      interpolator.addControlPoint(xmp.filename, xmp.xmpString)
+    })
+
+    interpolator.checkControlPointIntegrity()
+    console.time('interpolate')
+    let collection = interpolator.interpolate()
+    console.timeEnd('interpolate')
+    console.log(collection)
+
+    let everyExposures = Object.values(collection).map(inter => inter.getSettingAttribute('Exposure2012'))
+
+    console.log(everyExposures)
   }
 
   document.getElementById('files').addEventListener('change', handleFileSelect, false)

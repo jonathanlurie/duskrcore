@@ -57,6 +57,7 @@
     }
   },
   "dependencies": {
+    "splines": "git+https://github.com/jonathanlurie/splines.git",
     "xml-js": "^1.6.11"
   }
 }

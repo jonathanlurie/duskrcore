@@ -1,4 +1,4 @@
 import AdobeXmp from './AdobeXmp'
-import AdobeXmpCollection from './AdobeXmpCollection'
+import AdobeXmpInterpolator from './AdobeXmpInterpolator'
 
-export default { AdobeXmp, AdobeXmpCollection }
+export default { AdobeXmp, AdobeXmpInterpolator }
