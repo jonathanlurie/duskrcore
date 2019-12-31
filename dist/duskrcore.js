@@ -7791,8 +7791,10 @@
                   if(i in this._controlPoints){
                     intermediates.push(this._controlPoints[i]); // replacing an intermediate by a control point
                   }else{
+                    let clone = firstControlPoint.adobeXmp.clone();
+                    clone.setRawFileName(`${prefix}${i}${suffix}`);
                     intermediates.push({
-                      adobeXmp: firstControlPoint.adobeXmp.clone(),
+                      adobeXmp: clone,
                       number: i
                     });
                   }
