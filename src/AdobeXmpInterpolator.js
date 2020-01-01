@@ -97,6 +97,13 @@ class AdobeXmpInterpolator {
     let prefix = firstControlPoint.prefix
     let suffix = firstControlPoint.suffix
 
+    // check is any of these has the cropping enable, if so, enable for all
+    // so that we can interpolate the crop just like any other params
+    let someHasCrop = controlPointList.map(cp => cp.adobeXmp).some(xmp => xmp.hasCrop())
+    if(someHasCrop){
+      controlPointList.map(cp => cp.adobeXmp).forEach(xmp => xmp.enableCropping())
+    }
+
     // create clones of the first AdobeXmp objects for all the series
     let intermediates = []
     for(let i=firstIndex; i<=lastIndex; i++){

@@ -8,8 +8,8 @@
 
 
 **Does it work on every settings available from Camera Raw?** Not yet. To make it simple, at the moment, only the settings that are using simple sliders are available. Here is the list of common features that are not yet available but still on the roadmap (from hight to low priority):
-- cropping
-- curve (custom points)
-- curve (parametric)
-- graduated filter
-- rotations
+- [x] cropping
+- [ ] curve (custom points)
+- [ ] curve (parametric)
+- [ ] graduated filter
+- [ ] rotations

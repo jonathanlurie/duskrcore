@@ -41,8 +41,9 @@ class AdobeXmp {
       return 'False'
 
     if(typeof val === 'number'){
-      // we want 99.999 to become 100 but we want 99.99 to remain 99.99
-      let roundedVal = Math.round(val * 100) / 100
+      // round to a precision that is unnecessary for most settings but that is
+      // relevant for the crop
+      let roundedVal = Math.round(val * 1000000) / 1000000
       return roundedVal.toString()
     }
 
@@ -120,6 +121,26 @@ class AdobeXmp {
   setSettingAttribute(attrName, value){
     let ba = this._getBasicAttributesObject()
     ba[`crs:${attrName}`] = AdobeXmp.convertToString(value)
+  }
+
+
+  hasCrop(){
+    let ba = this._getBasicAttributesObject()
+    return this.getSettingAttribute('HasCrop')
+  }
+
+
+  enableCropping(){
+    let ba = this._getBasicAttributesObject()
+    if(!this.getSettingAttribute('HasCrop')){
+      this.setSettingAttribute('HasCrop', true) // This one was false
+      this.setSettingAttribute('CropTop', 0) // this one and the next where not existing
+      this.setSettingAttribute('CropLeft', 0)
+      this.setSettingAttribute('CropBottom', 1)
+      this.setSettingAttribute('CropRight', 1)
+      this.setSettingAttribute('CropAngle', 0)
+      this.setSettingAttribute('CropConstrainToWarp', 1)
+    }
   }
 
 
