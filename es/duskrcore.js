@@ -40,8 +40,11 @@ class AdobeXmp {
     if(val === false)
       return 'False'
 
-    if(typeof val === 'number')
-      return val.toString()
+    if(typeof val === 'number'){
+      // we want 99.999 to become 100 but we want 99.99 to remain 99.99
+      let roundedVal = Math.round(val * 100) / 100;
+      return roundedVal.toString()
+    }
 
     return val.trim()
   }
