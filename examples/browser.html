@@ -68,9 +68,12 @@
   }
 
   function process(xmpRawData){
-    // let xmpObj = new duskrcore.AdobeXmp()
-    // xmpObj.setXmlPayload(xmpRawData[0].xmpString)
-    // console.log(xmpObj)
+
+    // test
+    let xmpObj = new duskrcore.AdobeXmp()
+    xmpObj.setXmlPayload(xmpRawData[0].xmpString)
+    console.log(xmpObj)
+    return
 
     let interpolator = new duskrcore.AdobeXmpInterpolator()
     console.log(interpolator)

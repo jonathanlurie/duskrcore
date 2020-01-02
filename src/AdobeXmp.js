@@ -71,7 +71,12 @@ class AdobeXmp {
 
 
   _getBasicAttributesObject(){
-    return this._objectRepresentation['x:xmpmeta']['rdf:RDF']['rdf:Description']['_attributes']
+    return this._getDescriptionObject()['_attributes']
+  }
+
+
+  _getDescriptionObject(){
+    return this._objectRepresentation['x:xmpmeta']['rdf:RDF']['rdf:Description']
   }
 
 
@@ -142,6 +147,31 @@ class AdobeXmp {
       this.setSettingAttribute('CropConstrainToWarp', 1)
     }
   }
+
+
+  // ToneCurvePV2012
+  getCurveToneCurve(color=''){
+    let desc = this._getDescriptionObject()
+    let curveObjName = 'crs:ToneCurvePV2012'
+    if(color === 'red')
+      curveObjName += 'Red'
+    if(color === 'green')
+      curveObjName += 'Green'
+    if(color === 'blue')
+      curveObjName += 'Blue'
+
+    let curveObj = desc[curveObjName]['rdf:Seq']['rdf:li'] // this is an array
+    let curveData = curveObj.map(li => {
+      // for each li elem, there is a string with 2 numbers separated by a comma: "128, 128"
+      let text = li._text
+      let values = text.split(',').map(numStr => parseInt(numStr.trim()))
+      return values
+    })
+
+    return curveData
+  }
+
+  
 
 
   clone(){
