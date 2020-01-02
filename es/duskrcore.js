@@ -150,14 +150,15 @@ class AdobeXmp {
 
 
   // ToneCurvePV2012
-  getCurveToneCurve(color=''){
+  getCurveTone(color=''){
     let desc = this._getDescriptionObject();
     let curveObjName = 'crs:ToneCurvePV2012';
-    if(color === 'red')
+
+    if(color.toLowerCase() === 'red')
       curveObjName += 'Red';
-    if(color === 'green')
+    else if(color.toLowerCase() === 'green')
       curveObjName += 'Green';
-    if(color === 'blue')
+    else if(color.toLowerCase() === 'blue')
       curveObjName += 'Blue';
 
     let curveObj = desc[curveObjName]['rdf:Seq']['rdf:li']; // this is an array
@@ -171,7 +172,36 @@ class AdobeXmp {
     return curveData
   }
 
-  
+
+  setCurveTone(values, color=''){
+    if(values.length < 2)
+      throw new Error('Curve data must contain at least two points.')
+
+    if(! values.every(point => Array.isArray(point) && (point.length === 2) ) )
+      throw new Error('Each point provided to a curve must be arrays of size two.')
+
+    let desc = this._getDescriptionObject();
+    let curveObjName = 'crs:ToneCurvePV2012';
+
+    if(color.toLowerCase() === 'red')
+      curveObjName += 'Red';
+    else if(color.toLowerCase() === 'green')
+      curveObjName += 'Green';
+    else if(color.toLowerCase() === 'blue')
+      curveObjName += 'Blue';
+
+    // let curveObj = desc[curveObjName]['rdf:Seq']['rdf:li'] // this is an array
+    desc[curveObjName]['rdf:Seq']['rdf:li'] = values.map(point => {
+      return {
+        _text: point.join(', ')
+      }
+    });
+  }
+
+
+  getCurveNumberOfPoints(color=''){
+    return this.getCurveTone(color).length
+  }
 
 
   clone(){
