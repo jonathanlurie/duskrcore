@@ -51,6 +51,30 @@ class AdobeXmp {
   }
 
 
+  static validateCurveData(values){
+    if(values.length < 2)
+      throw new Error('Curve data must contain at least two points.')
+
+    if(! values.every(point => Array.isArray(point) && (point.length === 2) ) )
+      throw new Error('Each point provided to a curve must be arrays of size two.')
+
+    values.flat().forEach(val => {
+      if(isNaN(val))
+        throw new Error('All the curve data values must be numbers')
+
+      if(val < 0 || val > 255 )
+        throw new Error('All values must be in the range [0, 255]')
+    });
+
+    return true
+  }
+
+
+  static orderCurveData(values){
+    let orderedAlongX = values.sort((pointA, pointB) => pointA[0] - pointB[0] );
+    return orderedAlongX
+  }
+
 
   constructor(){
     this._xmlPayload = null;
@@ -174,11 +198,10 @@ class AdobeXmp {
 
 
   setCurveTone(values, color=''){
-    if(values.length < 2)
-      throw new Error('Curve data must contain at least two points.')
+    AdobeXmp.validateCurveData(); // possibly throw an exception
 
-    if(! values.every(point => Array.isArray(point) && (point.length === 2) ) )
-      throw new Error('Each point provided to a curve must be arrays of size two.')
+    // perform a possibly unnecessary reordering or data
+    let orderedValues = AdobeXmp.orderCurveData(values);
 
     let desc = this._getDescriptionObject();
     let curveObjName = 'crs:ToneCurvePV2012';
@@ -191,11 +214,18 @@ class AdobeXmp {
       curveObjName += 'Blue';
 
     // let curveObj = desc[curveObjName]['rdf:Seq']['rdf:li'] // this is an array
-    desc[curveObjName]['rdf:Seq']['rdf:li'] = values.map(point => {
+    desc[curveObjName]['rdf:Seq']['rdf:li'] = orderedValues.map(point => {
       return {
         _text: point.join(', ')
       }
     });
+  }
+
+
+  addCurvePoint(point, color=''){
+    let curveData = this.getCurveTone(color);
+    curveData.push(point);
+    this.setCurveTone(curveData, color);
   }
 
 
