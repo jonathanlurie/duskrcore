@@ -6,7 +6,7 @@ const UNSETTINGS = [
   'ProcessVersion'
 ];
 
-class AdobeXmp {
+class AdobeMetadata {
 
   /**
    * Val is a string, but it can represent a number, a boolean or a string.
@@ -140,7 +140,7 @@ class AdobeXmp {
   getSettingAttribute(attrName){
     let ba = this._getBasicAttributesObject();
     if(`crs:${attrName}` in ba){
-      return AdobeXmp.convertToRelevantType(ba[`crs:${attrName}`])
+      return AdobeMetadata.convertToRelevantType(ba[`crs:${attrName}`])
     }else{
       return null
     }
@@ -149,7 +149,7 @@ class AdobeXmp {
 
   setSettingAttribute(attrName, value){
     let ba = this._getBasicAttributesObject();
-    ba[`crs:${attrName}`] = AdobeXmp.convertToString(value);
+    ba[`crs:${attrName}`] = AdobeMetadata.convertToString(value);
   }
 
 
@@ -198,10 +198,10 @@ class AdobeXmp {
 
 
   setCurveTone(values, color=''){
-    AdobeXmp.validateCurveData(); // possibly throw an exception
+    AdobeMetadata.validateCurveData(); // possibly throw an exception
 
     // perform a possibly unnecessary reordering or data
-    let orderedValues = AdobeXmp.orderCurveData(values);
+    let orderedValues = AdobeMetadata.orderCurveData(values);
 
     let desc = this._getDescriptionObject();
     let curveObjName = 'crs:ToneCurvePV2012';
@@ -235,7 +235,7 @@ class AdobeXmp {
 
 
   clone(){
-    let clone = new AdobeXmp();
+    let clone = new AdobeMetadata();
     clone.setXmlPayload(this._xmlPayload);
     return clone
   }
@@ -483,7 +483,7 @@ var splines = {
 };
 var splines_2 = splines.MonotonicCubicSpline;
 
-class AdobeXmpInterpolator {
+class AdobeMetadataInterpolator {
 
   static findNumberSequence(filename){
     let splitChar = ' ';
@@ -516,21 +516,21 @@ class AdobeXmpInterpolator {
 
 
   addControlPoint(filename, xmlPayload){
-    let sequenceInfo = AdobeXmpInterpolator.findNumberSequence(filename);
+    let sequenceInfo = AdobeMetadataInterpolator.findNumberSequence(filename);
     if(!sequenceInfo){
       throw new Error(`The filename must contain a sequence of number in its name. ("${filename}" given)`)
     }
 
-    let adobeXmp = new AdobeXmp();
-    adobeXmp.setXmlPayload(xmlPayload);
+    let adobeMetadata = new AdobeMetadata();
+    adobeMetadata.setXmlPayload(xmlPayload);
 
     this._controlPoints[sequenceInfo.number] = {
       filename: filename,
-      adobeXmp: adobeXmp,
+      adobeMetadata: adobeMetadata,
       ...sequenceInfo
     };
 
-    console.log(adobeXmp);
+    console.log(adobeMetadata);
 
     // resetting the collection
     this._collection = {};
@@ -557,8 +557,8 @@ class AdobeXmpInterpolator {
       throw new Error('All the control point filename must have the same shape: prefix, sequence number, suffix. Suffixes differ.')
     }
 
-    // check if all the provided xmp are actually the result of development
-    let allHaveSettings = controlPointList.map(cp => cp.adobeXmp).every(adobeXmp => adobeXmp.hasSettings());
+    // check if all the provided meta are actually the result of development
+    let allHaveSettings = controlPointList.map(cp => cp.adobeMetadata).every(adobeMetadata => adobeMetadata.hasSettings());
     if(!allHaveSettings){
       throw new Error('All the provided XMP file must be the result of photo development (not blank).')
     }
@@ -580,35 +580,35 @@ class AdobeXmpInterpolator {
 
     // check is any of these has the cropping enable, if so, enable for all
     // so that we can interpolate the crop just like any other params
-    let someHasCrop = controlPointList.map(cp => cp.adobeXmp).some(xmp => xmp.hasCrop());
+    let someHasCrop = controlPointList.map(cp => cp.adobeMetadata).some(meta => meta.hasCrop());
     if(someHasCrop){
-      controlPointList.map(cp => cp.adobeXmp).forEach(xmp => xmp.enableCropping());
+      controlPointList.map(cp => cp.adobeMetadata).forEach(meta => meta.enableCropping());
     }
 
-    // create clones of the first AdobeXmp objects for all the series
+    // create clones of the first AdobeMetadata objects for all the series
     let intermediates = [];
     for(let i=firstIndex; i<=lastIndex; i++){
       if(i in this._controlPoints){
         intermediates.push(this._controlPoints[i]); // replacing an intermediate by a control point
       }else{
-        let clone = firstControlPoint.adobeXmp.clone();
+        let clone = firstControlPoint.adobeMetadata.clone();
         clone.setRawFileName(`${prefix}${i}${suffix}`);
         intermediates.push({
-          adobeXmp: clone,
+          adobeMetadata: clone,
           number: i
         });
       }
     }
 
     // get the list of setting attributes
-    let settingAttributeNames = firstControlPoint.adobeXmp.getListOfSettingAttributes();
+    let settingAttributeNames = firstControlPoint.adobeMetadata.getListOfSettingAttributes();
 
     // for each setting attribute, we build a spline that goes along all the control points
     let xs = controlPointList.map(cp => cp.number);
 
     // for each settings, we create the y coordinates to interpolate on
     settingAttributeNames.forEach(attr => {
-      let ys = controlPointList.map(cp => cp.adobeXmp.getSettingAttribute(attr));
+      let ys = controlPointList.map(cp => cp.adobeMetadata.getSettingAttribute(attr));
       let splineInterpolator = new splines_2(xs, ys);
 
       // for each intermediate, we interpolate
@@ -618,14 +618,14 @@ class AdobeXmpInterpolator {
           return
         }
 
-        inter.adobeXmp.setSettingAttribute(attr, splineInterpolator.interpolate(inter.number));
+        inter.adobeMetadata.setSettingAttribute(attr, splineInterpolator.interpolate(inter.number));
       });
     });
 
 
     // building the collection
     intermediates.forEach(inter => {
-      this._collection[`${prefix}${inter.number}${suffix}`] = inter.adobeXmp;
+      this._collection[`${prefix}${inter.number}${suffix}`] = inter.adobeMetadata;
     });
 
     return this._collection
@@ -638,7 +638,7 @@ class AdobeXmpInterpolator {
 
 }
 
-var index = { AdobeXmp, AdobeXmpInterpolator };
+var index = { AdobeMetadata, AdobeMetadataInterpolator };
 
 export default index;
 //# sourceMappingURL=duskrcore.js.map

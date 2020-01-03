@@ -70,12 +70,12 @@
   function process(xmpRawData){
 
     // test
-    let xmpObj = new duskrcore.AdobeXmp()
-    xmpObj.setXmlPayload(xmpRawData[0].xmpString)
-    console.log(xmpObj)
+    let metaObj = new duskrcore.AdobeMetadata()
+    metaObj.setXmlPayload(xmpRawData[0].xmpString)
+    console.log(metaObj)
     return
 
-    let interpolator = new duskrcore.AdobeXmpInterpolator()
+    let interpolator = new duskrcore.AdobeMetadataInterpolator()
     console.log(interpolator)
 
     xmpRawData.forEach(xmp => {

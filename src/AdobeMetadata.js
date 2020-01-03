@@ -6,7 +6,7 @@ const UNSETTINGS = [
   'ProcessVersion'
 ]
 
-class AdobeXmp {
+class AdobeMetadata {
 
   /**
    * Val is a string, but it can represent a number, a boolean or a string.
@@ -140,7 +140,7 @@ class AdobeXmp {
   getSettingAttribute(attrName){
     let ba = this._getBasicAttributesObject()
     if(`crs:${attrName}` in ba){
-      return AdobeXmp.convertToRelevantType(ba[`crs:${attrName}`])
+      return AdobeMetadata.convertToRelevantType(ba[`crs:${attrName}`])
     }else{
       return null
     }
@@ -149,7 +149,7 @@ class AdobeXmp {
 
   setSettingAttribute(attrName, value){
     let ba = this._getBasicAttributesObject()
-    ba[`crs:${attrName}`] = AdobeXmp.convertToString(value)
+    ba[`crs:${attrName}`] = AdobeMetadata.convertToString(value)
   }
 
 
@@ -198,10 +198,10 @@ class AdobeXmp {
 
 
   setCurveTone(values, color=''){
-    AdobeXmp.validateCurveData() // possibly throw an exception
+    AdobeMetadata.validateCurveData() // possibly throw an exception
 
     // perform a possibly unnecessary reordering or data
-    let orderedValues = AdobeXmp.orderCurveData(values)
+    let orderedValues = AdobeMetadata.orderCurveData(values)
 
     let desc = this._getDescriptionObject()
     let curveObjName = 'crs:ToneCurvePV2012'
@@ -235,11 +235,11 @@ class AdobeXmp {
 
 
   clone(){
-    let clone = new AdobeXmp()
+    let clone = new AdobeMetadata()
     clone.setXmlPayload(this._xmlPayload)
     return clone
   }
 
 }
 
-export default AdobeXmp
+export default AdobeMetadata

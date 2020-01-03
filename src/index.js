@@ -1,4 +1,4 @@
-import AdobeXmp from './AdobeXmp'
-import AdobeXmpInterpolator from './AdobeXmpInterpolator'
+import AdobeMetadata from './AdobeMetadata'
+import AdobeMetadataInterpolator from './AdobeMetadataInterpolator'
 
-export default { AdobeXmp, AdobeXmpInterpolator }
+export default { AdobeMetadata, AdobeMetadataInterpolator }
