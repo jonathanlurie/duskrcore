@@ -76,6 +76,23 @@ class AdobeMetadata {
   }
 
 
+  /**
+   * Check is the curve has only the values [[0, 0], [255, 255]]
+   */
+  static isDefaultCurve(values){
+    try{
+      if(value.length === 2 &&
+         value[0][0] === 0 && value[0][1] === 0 &&
+         value[1][0] === 255 && value[1][1] === 255){
+        return true
+      }else{
+        return false
+      }
+    }catch(e){
+      return false
+    }
+  }
+
   constructor(){
     this._xmlPayload = null
     this._objectRepresentation = null
@@ -198,7 +215,7 @@ class AdobeMetadata {
 
 
   setCurveTone(values, color=''){
-    AdobeMetadata.validateCurveData() // possibly throw an exception
+    AdobeMetadata.validateCurveData(values) // possibly throw an exception
 
     // perform a possibly unnecessary reordering or data
     let orderedValues = AdobeMetadata.orderCurveData(values)
@@ -222,6 +239,9 @@ class AdobeMetadata {
   }
 
 
+
+
+
   addCurvePoint(point, color=''){
     let curveData = this.getCurveTone(color)
     curveData.push(point)
@@ -231,6 +251,44 @@ class AdobeMetadata {
 
   getCurveNumberOfPoints(color=''){
     return this.getCurveTone(color).length
+  }
+
+
+  /**
+   * Add some duplicata curve points that will be interpolate afterwards.
+   * The index of the duplicated point is random, to be tested if it's the correct approach.
+   */
+  addCurveFakePoints(numberOfPoints, color=''){
+    let curveData = this.getCurveTone(color)
+    let existingCurveData = this.getCurveTone(color)
+    let originalLength = existingCurveData.length
+
+    let pointsToAdd = numberOfPoints
+    while(pointsToAdd){
+      existingCurveData.push(existingCurveData[~~(Math.random() * originalLength)].slice())
+      pointsToAdd --
+    }
+    this.setCurveTone(existingCurveData, color)
+  }
+
+
+  /**
+   * Remove duplicate of curve points that were added synthetically.
+   * Are considered 'duplicates' two points that have the same x value
+   * (y does not matter)
+   */
+  sanitizeCurve(color=''){
+    let existingCurveData = this.getCurveTone(color)
+    let existingX = []
+    let newCurveData = []
+
+    existingCurveData.forEach(point => {
+      if(!existingX.includes(point[0])){
+        existingX.push(point[0])
+        newCurveData.push(point)
+      }
+    })
+    this.setCurveTone(newCurveData, color)
   }
 
 

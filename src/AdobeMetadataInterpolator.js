@@ -142,6 +142,12 @@ class AdobeMetadataInterpolator {
     })
 
 
+    // curve interpolation
+    
+
+
+
+
     // building the collection
     intermediates.forEach(inter => {
       this._collection[`${prefix}${inter.number}${suffix}`] = inter.adobeMetadata
