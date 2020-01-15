@@ -8020,13 +8020,59 @@
                     }
                   });
 
+                  let curvePointsForIntermediates = new Array(maxNbPoint);
+
                   // for each point of the curve, we interpolate
                   for(let i=0; i<maxNbPoint; i++){
-                    let allTheiPoints = controlPointList.map(cp => cp.adobeMetadata.getCurveTone(color)[i]);
-                    let xs = allTheiPoints.map(iPoint => iPoint[0]);
-                    let ys = allTheiPoints.map(iPoint => iPoint[1]);
+                    curvePointsForIntermediates[i] = {
+                      x: new Array(intermediates.length),
+                      y: new Array(intermediates.length)
+                    };
 
+                    let allTheiPoints = controlPointList.map(cp => cp.adobeMetadata.getCurveTone(color)[i]);
+                    let xs = controlPointList.map(cp => cp.number);
+                    let curveXs = allTheiPoints.map(iPoint => iPoint[0]);
+                    let curveYs = allTheiPoints.map(iPoint => iPoint[1]);
+                    let splineInterpolatorCurveX = new splines_2(xs, curveXs);
+                    let splineInterpolatorCurveY = new splines_2(xs, curveYs);
+
+                    for(let j=0; j<intermediate.length; j++){
+                      let inter = intermediate[j];
+                      let xj = splineInterpolatorCurveX.interpolate(inter.number);
+                      let yj = splineInterpolatorCurveY.interpolate(inter.number);
+                      curvePointsForIntermediates[i].x[j] = xj;
+                      curvePointsForIntermediates[i].y[j] = yj;
+                    }
+
+                    // to reshape so that curvePointsForIntermediates is p0p0p0p0... p1p1p1p1...
+                    // intermediates.forEach(inter => {
+                    //   // control points don't need interpolation
+                    //   if(inter.number in this._controlPoints){
+                    //     return
+                    //   }
+                    //
+                    //   inter.adobeMetadata.setSettingAttribute(attr, splineInterpolator.interpolate(inter.number))
+                    // })
                   }
+
+                  // TODO
+                  // now that all the xj and yj are in curvePointsForIntermediates, we can
+                  // sort of transpose curvePointsForIntermediates to set all curve points of each inter
+                  // I think this should do:
+                  // 
+                  intermediates.forEach((inter, i) => {
+                    // control points don't need interpolation
+                    if(inter.number in this._controlPoints){
+                      return
+                    }
+
+                    let curveValues = curvePointsForIntermediates.map(allNthPoints => {
+                      return [allNthPoints.x[i], allNthPoints.y[i]]
+                    });
+
+
+                    inter.adobeMetadata.setCurveTone( curveValues, color);
+                  });
 
 
                 }
