@@ -143,7 +143,50 @@ class AdobeMetadataInterpolator {
 
 
     // curve interpolation
-    
+    function interpolateCurve(color=''){
+      // get the curve that has the largest amount of point among all the control points
+      let maxNbPoint = 0
+      controlPointList.forEach(cp => {
+        let nbPoints = cp.adobeMetadata.getCurveNumberOfPoints()
+        maxNbPoint = Math.max(maxNbPoint, nbPoints)
+      })
+
+      // add fake points to all the control point curve, so that all curves from
+      // a given color have the same number of points n each control point
+      controlPointList.forEach(cp => {
+        let nbPoints = cp.adobeMetadata.getCurveNumberOfPoints()
+        if(nbPoints < maxNbPoint){
+          cp.adobeMetadata.addCurveInterpolationPoints(maxNbPoint - nbPoints, color)
+        }
+      })
+
+      let curvePointsForIntermediates = new Array(maxNbPoint)
+
+      // for each point of the curve, we interpolate
+      for(let i=0; i<maxNbPoint; i++){
+        curvePointsForIntermediates[i] = []
+        let allTheiPoints = controlPointList.map(cp => cp.adobeMetadata.getCurveTone(color)[i])
+        let xs = controlPointList.map(cp => cp.number)
+        let curveXs = allTheiPoints.map(iPoint => iPoint[0])
+        let curveYs = allTheiPoints.map(iPoint => iPoint[1])
+        let splineInterpolatorCurveX = new MonotonicCubicSpline(xs, curveXs)
+        let splineInterpolatorCurveX = new MonotonicCubicSpline(xs, curveYs)
+
+        // to reshape so that curvePointsForIntermediates is p0p0p0p0... p1p1p1p1...
+        // intermediates.forEach(inter => {
+        //   // control points don't need interpolation
+        //   if(inter.number in this._controlPoints){
+        //     return
+        //   }
+        //
+        //   inter.adobeMetadata.setSettingAttribute(attr, splineInterpolator.interpolate(inter.number))
+        // })
+      }
+
+
+    }
+
+    interpolateCurve()
 
 
 

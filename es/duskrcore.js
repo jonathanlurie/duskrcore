@@ -259,7 +259,7 @@ class AdobeMetadata {
    * Add some duplicata curve points that will be interpolate afterwards.
    * The index of the duplicated point is random, to be tested if it's the correct approach.
    */
-  addCurveFakePoints(numberOfPoints, color=''){
+  addCurveInterpolationPoints(numberOfPoints, color=''){
     let curveData = this.getCurveTone(color);
     let existingCurveData = this.getCurveTone(color);
     let originalLength = existingCurveData.length;
@@ -442,7 +442,35 @@ class AdobeMetadataInterpolator {
 
 
     // curve interpolation
-    
+    function interpolateCurve(color=''){
+      // get the curve that has the largest amount of point among all the control points
+      let maxNbPoint = 0;
+      controlPointList.forEach(cp => {
+        let nbPoints = cp.adobeMetadata.getCurveNumberOfPoints();
+        maxNbPoint = Math.max(maxNbPoint, nbPoints);
+      });
+
+      // add fake points to all the control point curve, so that all curves from
+      // a given color have the same number of points n each control point
+      controlPointList.forEach(cp => {
+        let nbPoints = cp.adobeMetadata.getCurveNumberOfPoints();
+        if(nbPoints < maxNbPoint){
+          cp.adobeMetadata.addCurveInterpolationPoints(maxNbPoint - nbPoints, color);
+        }
+      });
+
+      // for each point of the curve, we interpolate
+      for(let i=0; i<maxNbPoint; i++){
+        let allTheiPoints = controlPointList.map(cp => cp.adobeMetadata.getCurveTone(color)[i]);
+        let xs = allTheiPoints.map(iPoint => iPoint[0]);
+        let ys = allTheiPoints.map(iPoint => iPoint[1]);
+
+      }
+
+
+    }
+
+    interpolateCurve();
 
 
 

@@ -258,7 +258,7 @@ class AdobeMetadata {
    * Add some duplicata curve points that will be interpolate afterwards.
    * The index of the duplicated point is random, to be tested if it's the correct approach.
    */
-  addCurveFakePoints(numberOfPoints, color=''){
+  addCurveInterpolationPoints(numberOfPoints, color=''){
     let curveData = this.getCurveTone(color)
     let existingCurveData = this.getCurveTone(color)
     let originalLength = existingCurveData.length
